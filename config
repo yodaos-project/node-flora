@@ -13,6 +13,7 @@ Configuration:
     --prefix=PREFIX             install prefix
     --cmake-modules=DIR         directory of cmake modules file exist
     --find-root-path=DIR        root dir for search dependencies libs
+    --search-node-headers
 
 Dependencies:
     --mutils=DIR                specify mutils install dir
@@ -78,6 +79,9 @@ do
 			;;
 		--cross-prefix=*)
 			CMAKE_ARGS=(${CMAKE_ARGS[@]} -DCROSS_PREFIX=$conf_optarg)
+			;;
+    --search-node-headers)
+			CMAKE_ARGS=(${CMAKE_ARGS[@]} -DSEARCH_NODE_HEADERS=ON)
 			;;
 	esac
 done

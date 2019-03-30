@@ -1,0 +1,37 @@
+stages:
+- test
+- name: deploy
+  if: tag IS present
+
+
+language: node_js
+node_js:
+- '10'
+os: linux
+dist: trusty
+
+install:
+- yarn
+
+script:
+- script/build
+
+jobs:
+  include:
+  - stage: test
+    os: linux
+  - stage: test
+    os: osx
+
+  - stage: deploy
+    name: Publish to registries
+    before_deploy:
+      - openssl aes-256-cbc -K $encrypted_34fa6e71a2a0_key -iv $encrypted_34fa6e71a2a0_iv -in script/.npmrc.enc -out $HOME\/.npmrc -d
+    deploy:
+      provider: script
+      skip_cleanup: true
+      script:
+        - npm publish
+      on:
+        repo: yodaos-project/node-flora
+        tags: true
