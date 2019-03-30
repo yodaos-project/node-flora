@@ -1,0 +1,39 @@
+{
+  "name": "flora",
+  "version": "0.1.0",
+  "description": "flora nodejs module",
+  "main": "index.js",
+  "files": [
+    "deps",
+    "script",
+    "src",
+    "CMakeLists.txt",
+    "comp.js",
+    "config",
+    "disposable.js",
+    "index.js"
+  ],
+  "scripts": {
+    "postinstall": "script/install && script/build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yodaos-project/node-flora.git"
+  },
+  "keywords": [
+    "flora",
+    "n-api",
+    "nodejs",
+    "shadow-node",
+    "addon"
+  ],
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/yodaos-project/node-flora/issues"
+  },
+  "homepage": "https://github.com/yodaos-project/node-flora#readme",
+  "dependencies": {
+    "node-addon-api": "^1.6.2"
+  }
+}

@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -e
+
+help="
+"
+
+repo=""
+ref=""
+dest=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --repo)
+      repo="$2"
+      shift
+      ;;
+    --ref)
+      ref="$2"
+      shift
+      ;;
+    --dest)
+      dest="$2"
+      shift
+      ;;
+    -h|--help)
+      printf "$help"
+      exit
+      ;;
+    --*)
+      echo "Illegal option $1"
+      ;;
+  esac
+  shift $(( $# > 0 ? 1 : 0 ))
+done
+
+dest="out/usr/include/node"
+if test -f $dest/node_api.h; then
+  exit 0
+fi
+
+work_dir=/tmp
+node_version=$(node --version)
+echo "Fetching node.js $node_version headers"
+archive_url="https://nodejs.org/dist/$node_version/node-$node_version-headers.tar.gz"
+
+arvhice_path="$work_dir/node-$node_version-headers.tar.gz"
+curl -sLo "$arvhice_path" "$archive_url"
+tar -C "$work_dir" -xzf "$arvhice_path"
+rm -f "$arvhice_path"
+
+rm -rf $dest
+mkdir -p out/usr/include
+mv "$work_dir/node-$node_version/include/node" "$dest"
