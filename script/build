@@ -59,7 +59,7 @@ build_dir="$project_dir/out/build/node-flora"
   --cmake-modules="$project_dir/deps/cmake-modules" \
   --find_root_path="$prjroot/out" \
   --prefix="$prefix" \
-  --napi="$project_dir/node_modules/node-addon-api" \
+  --napi=$(node -e "console.log(require('path').dirname(require.resolve('node-addon-api')))") \
   --search-node-headers
 cd $build_dir
 make
