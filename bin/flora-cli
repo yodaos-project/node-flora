@@ -1,0 +1,164 @@
+#!/usr/bin/env node
+
+var flora = require('@yoda/flora')
+
+var uri = 'unix:/var/run/flora.sock'
+var help = `flora-cli [options] <command> [args...]
+
+options:
+-u, --uri    connect to given flora dispatcher.
+-h, --help   show this message.
+
+commands:
+call         <name> <args-json-string> <target-name>
+             -t, --timeout <milliseconds>
+post         <name> <args-json-string>
+subscribe    <names...>
+`
+var cliArgs = process.argv.slice(2)
+
+var agent
+var exec = null
+var executors = {
+  call: function call () {
+    var target
+    var name
+    var args
+    var timeout = 0
+
+    while (cliArgs.length > 0) {
+      var $1 = cliArgs.shift()
+      switch ($1) {
+        case '-t':
+        case '--timeout':
+          timeout = Number($1)
+          if (!Number.isInteger(timeout)) {
+            throw new Error('Unexpected non-integer timeout.')
+          }
+          break
+        default:
+          if (name == null) {
+            name = $1
+          } else if (args == null) {
+            args = $1
+          } else if (target == null) {
+            target = $1
+          }
+      }
+    }
+
+    console.log(`invoking remote method(${name}) with body(${args})...`)
+    if (name == null || args == null || target == null) {
+      throw new Error('invalid arguments')
+    }
+
+    var msg = []
+    if (args) {
+      args = JSON.parse(args)
+      if (!Array.isArray(args)) {
+        throw new Error('args is not an array')
+      }
+      msg = args
+    }
+
+    var startedOn = Date.now()
+    agent.call(name, msg, target, timeout)
+      .then(reply => {
+        var duration = Date.now() - startedOn
+        console.log(`invocation completed after ${duration}ms.`)
+        console.log(reply)
+        agent.close()
+      })
+      .catch(err => {
+        console.error('unexpected error on invoking', err)
+        agent.close()
+      })
+  },
+  post: function post () {
+    var name
+    var args
+    while (cliArgs.length > 0) {
+      var $1 = cliArgs.shift()
+      switch ($1) {
+        default:
+          if (name == null) {
+            name = $1
+          } else if (args == null) {
+            args = $1
+          }
+      }
+    }
+
+    console.log(`sending message to channel(${name}) with body(${args})...`)
+    if (name == null || args == null) {
+      throw new Error('invalid arguments')
+    }
+
+    var msg = []
+    if (args) {
+      args = JSON.parse(args)
+      if (!Array.isArray(args)) {
+        throw new Error('args is not an array')
+      }
+      msg = args
+    }
+
+    agent.post(name, msg)
+    agent.close()
+  },
+  subscribe: function subscribe () {
+    var names = []
+
+    while (cliArgs.length > 0) {
+      var $1 = cliArgs.shift()
+      switch ($1) {
+        default:
+          if ($1) {
+            names.push($1)
+          }
+      }
+    }
+    if (names.length <= 0) {
+      agent.close()
+      return
+    }
+
+    var typeNames = [ 'INSTANT', 'PERSIST' ]
+    function listen (name, msg, type) {
+      var typeName = typeNames[type] || 'UNKNOWN_TYPE'
+      console.log(`[${new Date().toISOString()}] ${typeName}[${name}] ` + msg.map(it => JSON.stringify(it)).join(', '))
+    }
+    names.forEach(key => {
+      console.log(`Subscribing '${key}'...`)
+      agent.subscribe(key, listen.bind(this, key))
+    })
+  }
+}
+
+function main () {
+  while (cliArgs.length > 0 && exec === null) {
+    var $1 = cliArgs.shift()
+    switch ($1) {
+      case '-u':
+      case '--uri':
+        uri = cliArgs.shift()
+        break
+      case '-h':
+      case '--help':
+        console.log(help)
+        return process.exit(0)
+      default:
+        exec = executors[$1]
+    }
+  }
+
+  if (exec == null) {
+    console.log(help)
+    process.exit(1)
+  }
+  agent = new flora.Agent(uri)
+  agent.start()
+  exec()
+}
+
+main()

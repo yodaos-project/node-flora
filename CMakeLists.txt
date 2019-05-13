@@ -76,6 +76,9 @@ else(BUILD_INDEPENDENT)
 
   file(GLOB YODA_FLORA_SRC *.js)
   install(FILES ${YODA_FLORA_SRC} DESTINATION ${CMAKE_INSTALL_DIR})
+
+  file(GLOB YODA_FLORA_BIN bin/flora-*)
+  install(FILES ${YODA_FLORA_BIN} DESTINATION /usr/bin)
 endif(BUILD_INDEPENDENT)
 
 target_compile_options(shadow-flora-cli PRIVATE
