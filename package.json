@@ -4,6 +4,7 @@
   "description": "flora nodejs module",
   "main": "index.js",
   "files": [
+    "bin",
     "deps",
     "script",
     "src",
@@ -35,5 +36,8 @@
   "homepage": "https://github.com/yodaos-project/node-flora#readme",
   "dependencies": {
     "node-addon-api": "^1.6.2"
+  },
+  "devDependencies": {
+    "standard": "^12.0.1"
   }
 }
