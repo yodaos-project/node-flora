@@ -21,6 +21,13 @@ class MsgCallbackInfo {
   uint32_t msgtype;
   Napi::Env env;
   std::shared_ptr<flora::Reply> reply;
+  struct {
+    uint16_t type;
+    uint16_t port;
+    uint32_t pid;
+    std::string name;
+    std::string ipaddr;
+  } sender;
 };
 
 class RespCallbackInfo {

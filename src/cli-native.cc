@@ -396,9 +396,17 @@ void ClientNative::msgCallback(const char* name, Napi::Env env,
   unique_lock<mutex> locker(cb_mutex);
   pendingMsgs.emplace_back(env);
   std::list<MsgCallbackInfo>::iterator it = --pendingMsgs.end();
-  (*it).msgName = name;
-  (*it).msg = msg;
-  (*it).msgtype = type;
+  it->msgName = name;
+  it->msg = msg;
+  it->msgtype = type;
+  it->sender.type = MsgSender::connection_type();
+  if (it->sender.type == 0)
+    it->sender.pid = MsgSender::pid();
+  else {
+    it->sender.ipaddr = MsgSender::ipaddr();
+    it->sender.port = MsgSender::port();
+  }
+  it->sender.name = MsgSender::name();
   if (type >= FLORA_NUMBER_OF_MSGTYPE) {
     (*it).reply = reply;
   }
@@ -554,6 +562,26 @@ static napi_value genHackedCaps(napi_env env, shared_ptr<Caps> msg) {
   return jsobj;
 }
 
+static napi_value createSenderObject(napi_env env, MsgCallbackInfo& cbinfo) {
+  napi_value res;
+  napi_value val;
+  napi_create_object(env, &res);
+  if (cbinfo.sender.type == 0) {
+    napi_create_uint32(env, cbinfo.sender.pid, &val);
+    napi_set_named_property(env, res, "pid", val);
+  } else {
+    napi_create_string_utf8(env, cbinfo.sender.ipaddr.c_str(),
+                            cbinfo.sender.ipaddr.length(), &val);
+    napi_set_named_property(env, res, "ipaddr", val);
+    napi_create_uint32(env, cbinfo.sender.port, &val);
+    napi_set_named_property(env, res, "port", val);
+  }
+  napi_create_string_utf8(env, cbinfo.sender.name.c_str(),
+                          cbinfo.sender.name.length(), &val);
+  napi_set_named_property(env, res, "name", val);
+  return res;
+}
+
 void ClientNative::handleMsgCallbacks() {
   napi_value jsmsg;
   SubscriptionMap::iterator subit;
@@ -571,12 +599,14 @@ void ClientNative::handleMsgCallbacks() {
 
     HandleScope scope(cbinfo.env);
     jsmsg = genHackedCaps(cbinfo.env, cbinfo.msg);
+    auto senderObj = createSenderObject(cbinfo.env, cbinfo);
     if (cbinfo.msgtype < FLORA_NUMBER_OF_MSGTYPE) {
       subit = subscriptions.find(cbinfo.msgName);
       if (subit != subscriptions.end()) {
         subit->second.MakeCallback(cbinfo.env.Global(),
                                    { jsmsg,
-                                     Number::New(cbinfo.env, cbinfo.msgtype) },
+                                     Number::New(cbinfo.env, cbinfo.msgtype),
+                                     senderObj },
                                    asyncContext);
       }
     } else {
@@ -584,7 +614,8 @@ void ClientNative::handleMsgCallbacks() {
       if (subit != remoteMethods.end()) {
         napi_value jsreply =
             NativeReply::createObject(cbinfo.env, cbinfo.reply);
-        subit->second.MakeCallback(cbinfo.env.Global(), { jsmsg, jsreply },
+        subit->second.MakeCallback(cbinfo.env.Global(),
+                                   { jsmsg, jsreply, senderObj },
                                    asyncContext);
       }
     }
