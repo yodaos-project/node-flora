@@ -168,7 +168,7 @@ function isCapsFormat (opts) {
  * @param {string} options.format - specify format of received message. format string values: 'array' | 'caps'
  */
 Agent.prototype.subscribe = function (name, handler, options) {
-  this.nativeSubscribe(name, (msg, type) => {
+  this.nativeSubscribe(name, (msg, type, sender) => {
     var cbmsg
     if (isCapsFormat(options)) {
       cbmsg = genCaps(msg)
@@ -176,7 +176,7 @@ Agent.prototype.subscribe = function (name, handler, options) {
       cbmsg = this.nativeGenArray(msg)
     }
     try {
-      handler(cbmsg, type)
+      handler(cbmsg, type, sender)
     } catch (e) {
       process.nextTick(() => {
         throw e
@@ -194,7 +194,7 @@ Agent.prototype.subscribe = function (name, handler, options) {
  * @param {string} options.format - specify format of received method params. format string values: 'array' | 'caps'
  */
 Agent.prototype.declareMethod = function (name, handler, options) {
-  this.nativeDeclareMethod(name, (msg, reply) => {
+  this.nativeDeclareMethod(name, (msg, reply, sender) => {
     var cbmsg
     if (isCapsFormat(options)) {
       cbmsg = genCaps(msg)
@@ -202,7 +202,7 @@ Agent.prototype.declareMethod = function (name, handler, options) {
       cbmsg = this.nativeGenArray(msg)
     }
     try {
-      return handler(cbmsg, reply)
+      return handler(cbmsg, reply, sender)
     } catch (e) {
       process.nextTick(() => {
         throw e
