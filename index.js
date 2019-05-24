@@ -81,6 +81,13 @@
  */
 
 /**
+ * get socket fd
+ * @method getSocket
+ * @memberof module:@yoda/flora~Agent
+ * @returns {number|undefined} socket fd or undefined
+ */
+
+/**
  * @class module:@yoda/flora~Response
  * @classdesc Response of Agent.get returns
  */

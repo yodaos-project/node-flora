@@ -49,6 +49,7 @@ Object NativeObjectWrap::Init(Napi::Env env, Object exports) {
                     InstanceMethod("removeMethod",
                                    &NativeObjectWrap::removeMethod),
                     InstanceMethod("close", &NativeObjectWrap::close),
+                    InstanceMethod("getSocket", &NativeObjectWrap::getSocket),
                     InstanceMethod("nativeGenArray",
                                    &NativeObjectWrap::genArray),
                     InstanceMethod("nativePost", &NativeObjectWrap::post),
@@ -106,6 +107,12 @@ Napi::Value NativeObjectWrap::close(const Napi::CallbackInfo& info) {
     tmp->close();
   }
   return info.Env().Undefined();
+}
+
+Napi::Value NativeObjectWrap::getSocket(const Napi::CallbackInfo& info) {
+  if (thisClient == nullptr)
+    return info.Env().Undefined();
+  return thisClient->getSocket(info);
 }
 
 Napi::Value NativeObjectWrap::post(const Napi::CallbackInfo& info) {
@@ -313,6 +320,13 @@ void ClientNative::close() {
     asyncContext = nullptr;
     status &= (~NATIVE_STATUS_STARTED);
   }
+}
+
+Value ClientNative::getSocket(const CallbackInfo& info) {
+  auto fd = floraAgent.get_socket();
+  if (fd < 0)
+    return info.Env().Undefined();
+  return Number::New(info.Env(), fd);
 }
 
 Value ClientNative::post(const CallbackInfo& info) {
