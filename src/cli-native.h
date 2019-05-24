@@ -69,6 +69,8 @@ class ClientNative {
 
   Napi::Value genArray(const Napi::CallbackInfo& info);
 
+  Napi::Value getSocket(const Napi::CallbackInfo& info);
+
   void initialize(const Napi::CallbackInfo& info);
 
   void close();
@@ -127,6 +129,8 @@ class NativeObjectWrap : public Napi::ObjectWrap<NativeObjectWrap> {
   Napi::Value call(const Napi::CallbackInfo& info);
 
   Napi::Value genArray(const Napi::CallbackInfo& info);
+
+  Napi::Value getSocket(const Napi::CallbackInfo& info);
 
  private:
   ClientNative* thisClient = nullptr;
