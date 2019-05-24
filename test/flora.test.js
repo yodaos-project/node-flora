@@ -1,8 +1,8 @@
 'use strict'
 
 var test = require('tape')
-var logger = require('logger')('flora-test')
-var flora = require('@yoda/flora')
+var logger = console
+var flora = require('..')
 var Agent = flora.Agent
 var agentOptions = { reconnInterval: 10000, bufsize: 0 }
 // var errUri = 'unix:/data/flora-error'

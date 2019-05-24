@@ -1,10 +1,18 @@
 #!/usr/bin/env bash
 set -ex
 
+help="
+script/build
+
+--prefix     install prefix
+--test       build test packages
+-h,--help    show this message
+"
+
 project_dir=$(pwd)
 
 prefix="$project_dir/out/usr"
-test_build=false
+test_build="NO"
 while [ $# -gt 0 ]; do
   case "$1" in
     --prefix)
@@ -12,7 +20,7 @@ while [ $# -gt 0 ]; do
       shift
       ;;
     --test)
-      test_build=true
+      test_build="YES"
       ;;
     -h|--help)
       printf "$help"
@@ -65,5 +73,19 @@ build_dir="$project_dir/out/build/node-flora"
 cd $build_dir
 make
 cp $build_dir/flora-cli.node $project_dir
+
+if test $test_build = "YES"; then
+  cd ${project_dir}/deps/flora-dispatcher
+  build_dir="$project_dir/out/build/flora-dispatcher"
+
+  ./config \
+    --build-dir="$build_dir" \
+    --cmake-modules="$project_dir/deps/cmake-modules" \
+    --find_root_path="$prjroot/out" \
+    --prefix="$prefix"
+  cd $build_dir
+  make
+  make install
+fi
 
 cd $project_dir

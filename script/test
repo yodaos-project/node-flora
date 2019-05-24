@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -ex
+
+export LD_LIBRARY_PATH=$(pwd)/out/usr/lib
+export DYLD_LIBRARY_PATH=$(pwd)/out/usr/lib
+
+SUDO=/usr/bin/sudo
+if ! test -x $SUDO; then
+  SUDO=command
+fi
+
+command $SUDO rm -f /var/run/flora.sock
+command $SUDO ln -s $(pwd)/flora.sock /var/run/flora.sock
+
+out/usr/bin/flora-dispatcher --uri=unix:$(pwd)/flora.sock --msg-buf-size=81920 &
+FLORA_PID=$!
+trap 'kill $FLORA_PID' EXIT
+
+npx tape "test/*.test.js" | npx tap-spec

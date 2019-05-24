@@ -16,7 +16,7 @@
   ],
   "scripts": {
     "postinstall": "script/install && script/build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "script/build --test && script/test"
   },
   "repository": {
     "type": "git",
@@ -38,6 +38,8 @@
     "node-addon-api": "^1.6.2"
   },
   "devDependencies": {
-    "standard": "^12.0.1"
+    "standard": "^12.0.1",
+    "tap-spec": "^5.0.0",
+    "tape": "^4.10.1"
   }
 }

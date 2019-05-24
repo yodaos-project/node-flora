@@ -31,7 +31,8 @@ var executors = {
       switch ($1) {
         case '-t':
         case '--timeout':
-          timeout = Number($1)
+          var $2 = cliArgs.shift()
+          timeout = Number($2)
           if (!Number.isInteger(timeout)) {
             throw new Error('Unexpected non-integer timeout.')
           }
@@ -47,7 +48,7 @@ var executors = {
       }
     }
 
-    console.log(`invoking remote method(${name}) with body(${args})...`)
+    console.log(`invoking remote(${target}) method(${name}) with body(${args})...`)
     if (name == null || args == null || target == null) {
       throw new Error('invalid arguments')
     }
@@ -154,7 +155,7 @@ function main () {
 
   if (exec == null) {
     console.log(help)
-    process.exit(1)
+    return process.exit(1)
   }
   agent = new flora.Agent(uri)
   agent.start()
