@@ -3,5 +3,6 @@ set -ex
 
 rm -rf deps/cmake-modules
 rm -rf deps/flora
+rm -rf deps/flora-dispatcher
 rm -rf deps/mutils
 rm -rf out

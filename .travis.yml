@@ -1,7 +1,6 @@
 stages:
 - test
-- name: deploy
-  if: tag IS present
+- deploy
 
 
 language: node_js
@@ -12,9 +11,11 @@ dist: trusty
 
 install:
 - yarn
+- script/install --test
 
 script:
-- script/build
+- script/build --test
+- script/test
 
 jobs:
   include:

@@ -1,6 +1,34 @@
 #!/usr/bin/env bash
 set -ex
 
+help="
+script/build
+
+--test       install test packages
+-h,--help    show this message
+"
+
+test_build="NO"
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --test)
+      test_build="YES"
+      ;;
+    -h|--help)
+      printf "$help"
+      exit
+      ;;
+    --*)
+      echo "Illegal option $1"
+      ;;
+  esac
+  shift $(( $# > 0 ? 1 : 0 ))
+done
+
 script/pull-deps --repo Rokid/aife-mutils --dest deps/mutils --ref master
 script/pull-deps --repo Rokid/aife-cmake-modules --dest deps/cmake-modules --ref master
 script/pull-deps --repo yodaos-project/flora --dest deps/flora --ref master
+
+if test $test_build = "YES"; then
+  script/pull-deps --repo yodaos-project/flora-dispatcher --dest deps/flora-dispatcher --ref master
+fi
