@@ -242,6 +242,30 @@ function isValidPostType (type) {
   return type >= exports.MSGTYPE_INSTANT && type <= exports.MSGTYPE_PERSIST
 }
 
+function codeToError(code) {
+  var err
+  switch (code) {
+  case exports.ERROR_INVALID_PARAM:
+    err = new Error('invalid params')
+    break
+  case exports.ERROR_NOT_CONNECTED:
+    err = new Error('flora service not connected')
+    break
+  case exports.ERROR_TIMEOUT:
+    err = new Error('flora call response timeout')
+    break
+  case exports.ERROR_TARGET_NOT_EXISTS:
+    err = new Error('flora call target not exists')
+    break
+  case exports.ERROR_DUPLICATED_ID:
+    err = new Error('flora client id duplicated')
+    break
+  default:
+    err = new Error('unknown error code ' + code)
+    break
+  }
+  return err
+}
 /**
  * post msg
  * @method post
@@ -255,9 +279,12 @@ function isValidPostType (type) {
  */
 Agent.prototype.post = function (name, msg, type) {
   if (typeof name !== 'string' || !isValidMsg(msg) || !isValidPostType(type)) {
-    return exports.ERROR_INVALID_PARAM
+    throw codeToError(exports.ERROR_INVALID_PARAM)
   }
-  return this.nativePost(name, msg, type, isCaps(msg))
+  var r = this.nativePost(name, msg, type, isCaps(msg))
+  if (r !== 0)
+    throw codeToError(r)
+  return r
 }
 
 /**
@@ -274,7 +301,7 @@ Agent.prototype.post = function (name, msg, type) {
  */
 Agent.prototype.call = function (name, msg, target, timeout, options) {
   if (typeof name !== 'string' || !isValidMsg(msg) || typeof target !== 'string') {
-    return Promise.reject(exports.ERROR_INVALID_PARAM)
+    return Promise.reject(codeToError(exports.ERROR_INVALID_PARAM))
   }
   return new Promise((resolve, reject) => {
     var r = this.nativeCall(name, msg, target, (rescode, reply) => {
@@ -286,11 +313,11 @@ Agent.prototype.call = function (name, msg, target, timeout, options) {
         }
         resolve(reply)
       } else {
-        reject(rescode)
+        reject(codeToError(rescode))
       }
     }, isCaps(msg), timeout)
     if (r !== 0) {
-      reject(r)
+      reject(codeToError(r))
     }
   })
 }
@@ -333,3 +360,8 @@ exports.ERROR_TIMEOUT = -4
  * @member {number} ERROR_TARGET_NOT_EXISTS
  */
 exports.ERROR_TARGET_NOT_EXISTS = -5
+/**
+ * @memberof module:@yoda/flora
+ * @member {number} ERROR_DUPLICATED_ID
+ */
+exports.ERROR_DUPLICATED_ID = -6
