@@ -499,7 +499,9 @@ test('module->flora->client: close post', t => {
   t.equal(typeof postClient, 'object')
   postClient.start()
   postClient.close()
-  postClient.post(msgName, [ int32, int64, hello ], flora.MSGTYPE_INSTANT)
+  t.throws(() => {
+    postClient.post(msgName, [ int32, int64, hello ], flora.MSGTYPE_INSTANT)
+  }, 'flora service not connected')
   setTimeout(() => {
     recvClient.close()
     t.end()
@@ -571,8 +573,9 @@ test('module->flora->client: duplicate client id', { timeout: 10 * 1000 }, t => 
     if (count > 0) {
       r = okAgent.post(msgName, msg)
       t.equal(r, 0)
-      r = failAgent.post(msgName, msg)
-      t.equal(r, flora.ERROR_NOT_CONNECTED)
+      t.throws(() => {
+        failAgent.post(msgName, msg)
+      }, 'flora service not connected')
       --count
     } else {
       clearInterval(timerId)
@@ -669,7 +672,7 @@ test('module->flora->client: rpc call target', { timeout: 10 * 1000 }, t => {
     agentInfo[0].agent.call(methodName, null, '##xx!!').then((reply) => {
       t.failed('missing target remote call should failed')
     }, (err) => {
-      t.equal(err, flora.ERROR_TARGET_NOT_EXISTS)
+      t.equal(err.code, flora.ERROR_TARGET_NOT_EXISTS)
     })
     agentInfo[0].agent.call(methodName, null, agentInfo[2].id).then(retCallback, retFailed)
     agentInfo[0].agent.call(methodName, null, agentInfo[2].id).then(retCallback, retFailed)
@@ -677,7 +680,7 @@ test('module->flora->client: rpc call target', { timeout: 10 * 1000 }, t => {
     agentInfo[0].agent.call(methodName, null, 'missingTarget').then((reply) => {
       t.failed('missing target remote call should failed')
     }, (err) => {
-      t.equal(err, flora.ERROR_TARGET_NOT_EXISTS)
+      t.equal(err.code, flora.ERROR_TARGET_NOT_EXISTS)
     })
     agentInfo[0].agent.call(methodName, null, agentInfo[0].id).then(retCallback, retFailed)
   }, 500)

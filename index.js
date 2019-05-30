@@ -264,6 +264,7 @@ function codeToError(code) {
     err = new Error('unknown error code ' + code)
     break
   }
+  err.code = code
   return err
 }
 /**
