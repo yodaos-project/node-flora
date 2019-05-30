@@ -49,6 +49,9 @@ if (BUILD_INDEPENDENT)
     HINTS ${napiPrefix}
     HEADERS napi.h napi-inl.h
   )
+  if (NOT APPLE)
+    set(mutils_LIBRARIES "-Wl,--whole-archive;${mutils_LIBRARIES};-Wl,--no-whole-archive")
+  endif()
   target_include_directories(shadow-flora-cli PRIVATE
     ${mutils_INCLUDE_DIRS}
     ${flora_INCLUDE_DIRS}
