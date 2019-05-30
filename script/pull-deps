@@ -33,13 +33,14 @@ while [ $# -gt 0 ]; do
 done
 
 work_dir=/tmp
+path_safe_ref=${ref//\//-}
 echo "Fetching $repo source codes on ref $ref"
 archive_url="https://github.com/$repo/archive/$ref.tar.gz"
 
-arvhice_path="$work_dir/${repo/\//-}-$ref.tar.gz"
+arvhice_path="$work_dir/${repo/\//-}-$path_safe_ref.tar.gz"
 curl -sLo "$arvhice_path" "$archive_url"
 tar -C "$work_dir" -xzf "$arvhice_path"
 rm -f "$arvhice_path"
 
 rm -rf "$dest"
-mv "$work_dir/${repo//*\//}-$ref" "$dest"
+mv "$work_dir/${repo//*\//}-$path_safe_ref" "$dest"
