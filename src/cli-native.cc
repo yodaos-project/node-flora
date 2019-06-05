@@ -177,6 +177,16 @@ static void parseAgentOptions(const Napi::Value& jsopts,
   }
 }
 
+static Napi::Value objectGet(const Napi::Value& objVal, const char* key, Napi::Value defaults = Napi::Value()) {
+  if (objVal.IsObject()) {
+    Napi::Object obj = objVal.As<Napi::Object>();
+    if (obj.Has(key)) {
+      return obj.Get(key);
+    }
+  }
+  return defaults;
+}
+
 void ClientNative::initialize(const CallbackInfo& info) {
   Napi::Env env = info.Env();
   thisEnv = env;
@@ -202,12 +212,17 @@ Value ClientNative::start(const CallbackInfo& info) {
   Napi::Env env = info.Env();
   if ((status & NATIVE_STATUS_CONFIGURED) &&
       !(status & NATIVE_STATUS_STARTED)) {
+    bool refLoop = objectGet(info[0], "refLoop", Napi::Boolean::New(env, true)).ToBoolean().Value();
     uv_loop_s* loop;
     napi_get_uv_event_loop(env, &loop);
     msgAsync.data = this;
     uv_async_init(loop, &msgAsync, msg_async_cb);
     respAsync.data = this;
     uv_async_init(loop, &respAsync, resp_async_cb);
+    if (!refLoop) {
+      uv_unref(reinterpret_cast<uv_handle_t*>(&this->msgAsync));
+      uv_unref(reinterpret_cast<uv_handle_t*>(&this->respAsync));
+    }
     napi_async_init(env, info.This(), String::New(env, "flora-agent"),
                     &asyncContext);
     floraAgent.start();
