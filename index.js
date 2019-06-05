@@ -242,27 +242,27 @@ function isValidPostType (type) {
   return type >= exports.MSGTYPE_INSTANT && type <= exports.MSGTYPE_PERSIST
 }
 
-function codeToError(code) {
+function codeToError (code) {
   var err
   switch (code) {
-  case exports.ERROR_INVALID_PARAM:
-    err = new Error('invalid params')
-    break
-  case exports.ERROR_NOT_CONNECTED:
-    err = new Error('flora service not connected')
-    break
-  case exports.ERROR_TIMEOUT:
-    err = new Error('flora call response timeout')
-    break
-  case exports.ERROR_TARGET_NOT_EXISTS:
-    err = new Error('flora call target not exists')
-    break
-  case exports.ERROR_DUPLICATED_ID:
-    err = new Error('flora client id duplicated')
-    break
-  default:
-    err = new Error('unknown error code ' + code)
-    break
+    case exports.ERROR_INVALID_PARAM:
+      err = new Error('invalid params')
+      break
+    case exports.ERROR_NOT_CONNECTED:
+      err = new Error('flora service not connected')
+      break
+    case exports.ERROR_TIMEOUT:
+      err = new Error('flora call response timeout')
+      break
+    case exports.ERROR_TARGET_NOT_EXISTS:
+      err = new Error('flora call target not exists')
+      break
+    case exports.ERROR_DUPLICATED_ID:
+      err = new Error('flora client id duplicated')
+      break
+    default:
+      err = new Error('unknown error code ' + code)
+      break
   }
   err.code = code
   return err
@@ -283,8 +283,7 @@ Agent.prototype.post = function (name, msg, type) {
     throw codeToError(exports.ERROR_INVALID_PARAM)
   }
   var r = this.nativePost(name, msg, type, isCaps(msg))
-  if (r !== 0)
-    throw codeToError(r)
+  if (r !== 0) { throw codeToError(r) }
   return r
 }
 
