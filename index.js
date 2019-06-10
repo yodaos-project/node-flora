@@ -52,6 +52,7 @@
  * @param {number} options.bufsize - flora msg buf size. default value 32768
  * @param {number} options.beepInterval - interval time of client send ping, only effective when connection is tcp protocol.
  * @param {number} options.norespTimeout - timeout of flora service no response, only effective when connection is tcp protocol.
+ * @param {number} options.daemon - daemon mode, agent that in this mode will not prevent process exit.
  */
 
 /**
@@ -146,7 +147,7 @@
  * @param {any[]} [data] - return data
  */
 
-var Agent = require('./flora-cli.node').Agent
+var Agent = require('./flora-cli.node')
 var Caps
 try {
   Caps = require('@yoda/caps/caps.node').Caps
@@ -189,7 +190,7 @@ Agent.prototype.subscribe = function (name, handler, options) {
         throw e
       })
     }
-  })
+  }, handler)
 }
 /**
  * declare remote method

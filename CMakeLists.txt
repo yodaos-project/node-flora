@@ -3,8 +3,8 @@ project(shadow-flora CXX)
 set(CMAKE_CXX_STANDARD 11)
 
 add_library(shadow-flora-cli MODULE
-	src/cli-native.cc
-	src/cli-native.h
+	src/flora-wrap.h
+	src/flora-native.cpp
 )
 
 if (BUILD_INDEPENDENT)
@@ -14,7 +14,7 @@ if (BUILD_INDEPENDENT)
   include(${CUSTOM_CMAKE_MODULES}/common.mk)
 
   if (BUILD_DEBUG)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -DROKID_LOG_ENABLED=1")
   else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Os")
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -s")
@@ -22,8 +22,8 @@ if (BUILD_INDEPENDENT)
 
   findPackage(mutils REQUIRED
     HINTS ${mutilsPrefix}
-    HEADERS caps.h
-    INC_PATH_SUFFIX include/caps
+    HEADERS caps.h rlog.h
+    INC_PATH_SUFFIX include/caps include/log
     STATIC_LIBS caps rlog misc
   )
   findPackage(flora REQUIRED
@@ -56,7 +56,6 @@ if (BUILD_INDEPENDENT)
     ${mutils_INCLUDE_DIRS}
     ${flora_INCLUDE_DIRS}
     ${iotjs_INCLUDE_DIRS}
-    ${napi_INCLUDE_DIRS}
   )
   target_link_libraries(shadow-flora-cli
     ${mutils_LIBRARIES}
