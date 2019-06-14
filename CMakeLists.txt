@@ -65,6 +65,10 @@ if (BUILD_INDEPENDENT)
   install(TARGETS shadow-flora-cli DESTINATION lib/node_modules/@yoda/flora)
   file(GLOB YODA_FLORA_SRC *.js)
   install(FILES ${YODA_FLORA_SRC} DESTINATION lib/node_modules/@yoda/flora)
+  file(GLOB YODA_FLORA_BIN bin/flora-*)
+  install(FILES ${YODA_FLORA_BIN}
+          DESTINATION bin
+          PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 else(BUILD_INDEPENDENT)
   target_include_directories(shadow-flora-cli PRIVATE
     ${CMAKE_INCLUDE_DIR}/include
