@@ -25,9 +25,9 @@ while [ $# -gt 0 ]; do
   shift $(( $# > 0 ? 1 : 0 ))
 done
 
-script/pull-deps --repo Rokid/aife-mutils --dest deps/mutils --ref master
+script/pull-deps --repo Rokid/aife-mutils --dest deps/mutils --ref release/1.0.x
 script/pull-deps --repo Rokid/aife-cmake-modules --dest deps/cmake-modules --ref master
-script/pull-deps --repo yodaos-project/flora --dest deps/flora --ref master
+script/pull-deps --repo yodaos-project/flora --dest deps/flora --ref release/1.1.x
 
 if test $test_build = "YES"; then
   script/pull-deps --repo yodaos-project/flora-dispatcher --dest deps/flora-dispatcher --ref master
