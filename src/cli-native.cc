@@ -541,6 +541,8 @@ static bool genCapsByJSArray(napi_env env, napi_value jsmsg,
       if (!genCapsByJSArray(env, v, sub))
         return false;
       caps->write(sub);
+    } else if (tp == napi_null) {
+      caps->write();
     } else if (tp == napi_undefined) {
       caps->write();
     } else
