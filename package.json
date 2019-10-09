@@ -1,5 +1,5 @@
 {
-  "name": "flora",
+  "name": "@yoda/flora",
   "version": "0.1.0",
   "description": "flora nodejs module",
   "main": "index.js",
